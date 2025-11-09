@@ -4,14 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Nick - Приєднатися</title>
-    <style>/* ... (Ваш CSS код без змін) ... */</style>
+    <style>
+        :root {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --bg-color: #f4f7f6;
+            --card-color: #ffffff;
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --text-color: #333;
+            --border-color: #ddd;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: var(--card-color);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 400px; /* Ширина для цієї форми */
+        }
+        h2 { text-align: center; margin-top: 0; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        button {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--primary-color); /* Синя кнопка */
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #0069d9;
+        }
+        #result-message {
+            margin-top: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 5px;
+        }
+        #result-message.success {
+            color: var(--success-color);
+            background-color: rgba(40,167,69,0.1);
+        }
+        #result-message.error {
+            color: var(--danger-color);
+            background-color: rgba(220,53,69,0.1);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
+        <div id="join-form">
+            <h2>Приєднання до кімнати</h2>
+            <p>Ви приєднуєтесь до гри. Введіть свої дані.</p>
+            <div class="form-group">
+                <label for="user_name">Ваше ім'я:</label>
+                <input type="text" id="user_name" placeholder="напр. 'Богдан'">
+            </div>
+            <div class="form-group">
+                <label for="wishlist">Ваші побажання:</label>
+                <textarea id="wishlist" placeholder="Напишіть, що б ви хотіли отримати..."></textarea>
+            </div>
+            <button onclick="joinRoom()">Приєднатися!</button>
+            <div id="result-message"></div>
         </div>
+
+        <div id="success-message" style="display: none; text-align: center;">
+            <h2>🎉 Вітаємо!</h2>
+            <p id="success-text"></p>
+            <p><b>Важливо:</b> Збережіть ваш особистий код доступу!</p>
+            <div class="form-group">
+                <label>Ваш унікальний код:</label>
+                <input type="text" id="user_code" readonly style="font-weight: bold; text-align: center;">
+            </div>
+        </div>
+    </div>
+
     <script>
-        // ⬇️⬇️⬇️ МИ ЗАПОВНИМО ЦЕ ПОСИЛАННЯ ПІЗНІШЕ ⬇️⬇️⬇️
-        const API_URL = "";
+        const API_URL = ""; // ⬅️⬅️⬅️ ВСТАВТЕ СЮДИ ПОСИЛАННЯ З RENDER
 
         let joinCode = '';
 
@@ -40,7 +146,7 @@
                 return;
             }
 
-            const url = `${API_URL}/rooms/join/?join_code=${joinCode}`; // ОНОВЛЕНО
+            const url = `${API_URL}/rooms/join/?join_code=${joinCode}`;
 
             try {
                 const response = await fetch(url, {

@@ -4,12 +4,126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Nick - Створити гру</title>
-    <style>/* ... (Ваш CSS код без змін) ... */</style>
+    <style>
+        :root {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --bg-color: #f4f7f6;
+            --card-color: #ffffff;
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --text-color: #333;
+            --border-color: #ddd;
+            --links-bg: #f8f9fa;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: var(--card-color);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 500px; /* Ширина для цієї форми */
+        }
+        h2 {
+            text-align: center;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        button {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--success-color); /* Зелена кнопка */
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #result-links {
+            margin-top: 1.5rem;
+            background-color: var(--links-bg);
+            padding: 1rem;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+        }
+        #result-links h3 { margin-top: 0; text-align: center; }
+        #result-links .form-group input { background-color: #fff; font-weight: 600; }
+        #error-message {
+            color: var(--danger-color);
+            background-color: rgba(220,53,69,0.1);
+            padding: 0.5rem;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <div id="create-form">
+            <h2>Створити кімнату</h2>
+            <div class="form-group">
+                <label for="room_name">Назва кімнати:</label>
+                <input type="text" id="room_name" placeholder="напр. 'Офіс 305'">
             </div>
+            <div class="form-group">
+                <label for="admin_name">Ваше ім'я (Адміністратор):</label>
+                <input type="text" id="admin_name" placeholder="напр. 'Карина'">
+            </div>
+            <div class="form-group">
+                <label for="budget">Бюджет:</label>
+                <input type="text" id="budget" placeholder="напр. '500 грн'">
+            </div>
+            <div class="form-group">
+                <label for="wishlist">Ваші побажання:</label>
+                <textarea id="wishlist" placeholder="Що б ви хотіли отримати?"></textarea>
+            </div>
+            <button onclick="createRoom()">Створити гру!</button>
+            <div id="error-message" style="display: none;"></div>
+        </div>
         <div id="result-links" style="display: none;">
             <h3>🎉 Кімнату створено!</h3>
             <p>Збережіть ці посилання. <b>Посилання адміна — тільки для вас!</b></p>
@@ -24,8 +138,7 @@
         </div>
     </div>
     <script>
-        // ⬇️⬇️⬇️ МИ ЗАПОВНИМО ЦЕ ПОСИЛАННЯ ПІЗНІШЕ ⬇️⬇️⬇️
-        const API_URL = "";
+        const API_URL = ""; // ⬅️⬅️⬅️ ВСТАВТЕ СЮДИ ПОСИЛАННЯ З RENDER
 
         async function createRoom() {
             const requestData = {
@@ -57,25 +170,14 @@
                     errorMessageDiv.style.display = 'block';
 
                 } else {
-                    // -----------------------------------------------
-                    // ⬇️⬇️⬇️ ОНОВЛЕНИЙ БЛОК УСПІХУ ⬇️⬇️⬇️
-                    // -----------------------------------------------
-
-                    // Отримуємо поточну адресу сайту (напр. https://my-site.netlify.app)
                     const baseUrl = window.location.origin;
-
-                    // Будуємо посилання самостійно
                     const adminLink = `${baseUrl}/admin.html?room=${data.room_id}&code=${data.admin_user_code}`;
                     const memberLink = `${baseUrl}/join.html?code=${data.member_join_code}`;
 
                     document.getElementById('admin_link').value = adminLink;
                     document.getElementById('member_link').value = memberLink;
-
                     document.getElementById('create-form').style.display = 'none';
                     document.getElementById('result-links').style.display = 'block';
-                    // -----------------------------------------------
-                    // ⬆️⬆️⬆️ КІНЕЦЬ БЛОКУ ⬆️⬆️⬆️
-                    // -----------------------------------------------
                 }
             } catch (error) {
                 errorMessageDiv.innerText = `Помилка мережі: ${error.message}. Перевірте, чи запущено сервер.`;
