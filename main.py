@@ -31,7 +31,6 @@ def find_room_by_id(room_id: int):
     return fake_rooms_db.get(room_id)
 
 
-# --- Реалізація Ендпоінту (Рівень 1 + 2) ---
 
 @app.delete("/users/{id}")
 async def delete_user(id: int, userCode: str = Query(..., min_length=1)):
@@ -40,10 +39,6 @@ async def delete_user(id: int, userCode: str = Query(..., min_length=1)):
     - id: ID користувача, якого видаляють.
     - userCode: Унікальний код адміністратора, який виконує дію.
     """
-
-    # --- Рівень 2: Валідації ---
-
-    # 1. Користувача з id не знайдено
     user_to_delete = find_user_by_id(id)
     if not user_to_delete:
         raise HTTPException(
@@ -51,7 +46,6 @@ async def delete_user(id: int, userCode: str = Query(..., min_length=1)):
             detail=f"Користувача з id {id} не знайдено"
         )
 
-    # 2. Користувача з userCode не знайдено
     admin_user = find_user_by_code(userCode)
     if not admin_user:
         raise HTTPException(
@@ -59,28 +53,24 @@ async def delete_user(id: int, userCode: str = Query(..., min_length=1)):
             detail=f"Користувача з userCode {userCode} не знайдено"
         )
 
-    # 3. Користувач з userCode не адміністратор
     if admin_user["role"] != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Користувач з userCode не є адміністратором"
         )
 
-    # 4. Користувач з userCode і id належать до різних кімнат
     if admin_user["room_id"] != user_to_delete["room_id"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Користувач та адміністратор належать до різних кімнат"
         )
 
-    # 5. Користувач з userCode і id це один і той самий користувач
     if admin_user["id"] == user_to_delete["id"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Адміністратор не може видалити сам себе"
         )
 
-    # 6. Кімната вже закрита
     room = find_room_by_id(admin_user["room_id"])
     if not room or room["is_closed"]:
         raise HTTPException(
