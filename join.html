@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Nick - Приєднатися</title>
+    <style>/* ... (Ваш CSS код без змін) ... */</style>
+</head>
+<body>
+    <div class="container">
+        </div>
+    <script>
+        // ⬇️⬇️⬇️ МИ ЗАПОВНИМО ЦЕ ПОСИЛАННЯ ПІЗНІШЕ ⬇️⬇️⬇️
+        const API_URL = "";
+
+        let joinCode = '';
+
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            if (code) {
+                joinCode = code;
+            } else {
+                document.getElementById('join-form').innerHTML = '<h2 style="color: red;">Помилка: Код приєднання не знайдено в посиланні.</h2>';
+            }
+        };
+
+        async function joinRoom() {
+            const requestData = {
+                user_name: document.getElementById('user_name').value,
+                wishlist: document.getElementById('wishlist').value
+            };
+            const resultDiv = document.getElementById('result-message');
+            resultDiv.innerText = '';
+            resultDiv.classList.remove('success', 'error');
+
+            if (!joinCode) {
+                resultDiv.innerText = 'Помилка: Немає коду приєднання.';
+                resultDiv.classList.add('error');
+                return;
+            }
+
+            const url = `${API_URL}/rooms/join/?join_code=${joinCode}`; // ОНОВЛЕНО
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    resultDiv.innerText = `Помилка: ${data.detail || 'Невідома помилка'}`;
+                    resultDiv.classList.add('error');
+                } else {
+                    document.getElementById('join-form').style.display = 'none';
+                    document.getElementById('success-text').innerText = data.message;
+                    document.getElementById('user_code').value = data.user_code;
+                    document.getElementById('success-message').style.display = 'block';
+                }
+            } catch (error) {
+                resultDiv.innerText = `Помилка мережі: ${error.message}. Перевірте, чи запущено сервер.`;
+                resultDiv.classList.add('error');
+            }
+        }
+    </script>
+</body>
+</html>

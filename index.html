@@ -3,67 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Nick Admin</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; }
-        input { margin-bottom: 10px; padding: 8px; }
-        button { padding: 10px 15px; }
-        #result { margin-top: 20px; font-weight: bold; }
-    </style>
+    <title>Secret Nick - Створити гру</title>
+    <style>/* ... (Ваш CSS код без змін) ... */</style>
 </head>
 <body>
-
-    <h2>Панель видалення користувача</h2>
-
-    <div>
-        <label for="userId">ID користувача (кого видалити):</label><br>
-        <input type="text" id="userId" placeholder="напр. 2">
+    <div class="container">
+        <div id="create-form">
+            </div>
+        <div id="result-links" style="display: none;">
+            <h3>🎉 Кімнату створено!</h3>
+            <p>Збережіть ці посилання. <b>Посилання адміна — тільки для вас!</b></p>
+            <div class="form-group">
+                <label>Посилання Адміністратора (Ваше):</label>
+                <input type="text" id="admin_link" readonly>
+            </div>
+            <div class="form-group">
+                <label>Посилання для Учасників (Надішліть друзям):</label>
+                <input type="text" id="member_link" readonly>
+            </div>
+        </div>
     </div>
-
-    <div>
-        <label for="adminCode">Ваш Admin Code (хто видаляє):</label><br>
-        <input type="text" id="adminCode" placeholder="напр. admin_10">
-    </div>
-
-    <button onclick="deleteUser()">Видалити користувача</button>
-
-    <div id="result"></div>
-
     <script>
-        async function deleteUser() {
-            const userId = document.getElementById('userId').value;
-            const adminCode = document.getElementById('adminCode').value;
-            const resultDiv = document.getElementById('result');
+        // ⬇️⬇️⬇️ МИ ЗАПОВНИМО ЦЕ ПОСИЛАННЯ ПІЗНІШЕ ⬇️⬇️⬇️
+        const API_URL = "";
 
-            if (!userId || !adminCode) {
-                resultDiv.innerText = 'Будь ласка, заповніть обидва поля.';
-                resultDiv.style.color = 'red';
-                return;
-            }
-
-            const url = `http://127.0.0.1:8000/users/${userId}?userCode=${adminCode}`;
+        async function createRoom() {
+            const requestData = {
+                room_name: document.getElementById('room_name').value,
+                admin_name: document.getElementById('admin_name').value,
+                budget: document.getElementById('budget').value,
+                wishlist: document.getElementById('wishlist').value
+            };
+            const errorMessageDiv = document.getElementById('error-message');
+            errorMessageDiv.style.display = 'none';
 
             try {
-                const response = await fetch(url, {
-                    method: 'DELETE',
+                const response = await fetch(`${API_URL}/rooms/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
                 });
 
                 const data = await response.json();
 
                 if (!response.ok) {
-                    resultDiv.innerText = `Помилка: ${data.detail || 'Невідома помилка'}`;
-                    resultDiv.style.color = 'red';
-                } else {
-                    resultDiv.innerText = `Успіх! ${data.message}.`;
-                    resultDiv.style.color = 'green';
-                }
+                    let errorText = 'Невідома помилка.';
+                    if (data.detail && Array.isArray(data.detail)) {
+                        errorText = data.detail.map(err => `${err.loc[1]}: ${err.msg}`).join(', ');
+                    } else if (data.detail) {
+                        errorText = data.detail;
+                    }
+                    errorMessageDiv.innerText = `Помилка: ${errorText}`;
+                    errorMessageDiv.style.display = 'block';
 
+                } else {
+                    // -----------------------------------------------
+                    // ⬇️⬇️⬇️ ОНОВЛЕНИЙ БЛОК УСПІХУ ⬇️⬇️⬇️
+                    // -----------------------------------------------
+
+                    // Отримуємо поточну адресу сайту (напр. https://my-site.netlify.app)
+                    const baseUrl = window.location.origin;
+
+                    // Будуємо посилання самостійно
+                    const adminLink = `${baseUrl}/admin.html?room=${data.room_id}&code=${data.admin_user_code}`;
+                    const memberLink = `${baseUrl}/join.html?code=${data.member_join_code}`;
+
+                    document.getElementById('admin_link').value = adminLink;
+                    document.getElementById('member_link').value = memberLink;
+
+                    document.getElementById('create-form').style.display = 'none';
+                    document.getElementById('result-links').style.display = 'block';
+                    // -----------------------------------------------
+                    // ⬆️⬆️⬆️ КІНЕЦЬ БЛОКУ ⬆️⬆️⬆️
+                    // -----------------------------------------------
+                }
             } catch (error) {
-                resultDiv.innerText = `Помилка мережі: ${error.message}`;
-                resultDiv.style.color = 'red';
+                errorMessageDiv.innerText = `Помилка мережі: ${error.message}. Перевірте, чи запущено сервер.`;
+                errorMessageDiv.style.display = 'block';
             }
         }
     </script>
-
 </body>
 </html>

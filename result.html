@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Nick - Мій результат</title>
+    <style>/* ... (Ваш CSS код без змін) ... */</style>
+</head>
+<body>
+    <div class="container">
+        </div>
+    <script>
+        // ⬇️⬇️⬇️ МИ ЗАПОВНИМО ЦЕ ПОСИЛАННЯ ПІЗНІШЕ ⬇️⬇️⬇️
+        const API_URL = "";
+
+        async function checkResult() {
+            const userCode = document.getElementById('user_code').value;
+            const errorDiv = document.getElementById('error-message');
+            const resultCard = document.getElementById('result-card');
+
+            errorDiv.style.display = 'none';
+            resultCard.style.display = 'none';
+
+            if (!userCode) {
+                errorDiv.innerText = 'Будь ласка, введіть ваш унікальний код.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const url = `${API_URL}/users/me?userCode=${userCode}`; // ОНОВЛЕНО
+
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorDiv.innerText = `Помилка: ${data.detail || 'Невідома помилка'}`;
+                    errorDiv.style.display = 'block';
+                } else {
+                    document.getElementById('your_name').innerText = data.your_name;
+                    document.getElementById('giftee_name').innerText = data.giftee_name;
+                    document.getElementById('room_budget').innerText = data.room_budget;
+                    document.getElementById('giftee_wishlist').innerText = data.giftee_wishlist;
+                    document.getElementById('check-form').style.display = 'none';
+                    resultCard.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.innerText = `Помилка мережі: ${error.message}. Перевірте, чи запущено сервер.`;
+                errorDiv.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

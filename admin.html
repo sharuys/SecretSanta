@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Nick - Панель Адміна</title>
+    <style>/* ... (Ваш CSS код без змін) ... */</style>
+</head>
+<body>
+    <div class="container">
+        </div>
+    <script>
+        // ⬇️⬇️⬇️ МИ ЗАПОВНИМО ЦЕ ПОСИЛАННЯ ПІЗНІШЕ ⬇️⬇️⬇️
+        const API_URL = "";
+
+        // TODO: В майбутньому adminCode можна автоматично
+        // брати з посилання (URL query parameter)
+
+        async function deleteUser() {
+            const userId = document.getElementById('userId').value;
+            const adminCode = document.getElementById('adminCode').value;
+            const resultDiv = document.getElementById('result');
+
+            resultDiv.innerText = '';
+            resultDiv.classList.remove('success', 'error');
+
+            if (!userId || !adminCode) {
+                resultDiv.innerText = 'Будь ласка, заповніть обидва поля.';
+                resultDiv.classList.add('error');
+                return;
+            }
+
+            const url = `${API_URL}/users/${userId}?userCode=${adminCode}`; // ОНОВЛЕНО
+
+            try {
+                const response = await fetch(url, {
+                    method: 'DELETE',
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    resultDiv.innerText = `Помилка: ${data.detail || 'Невідома помилка'}`;
+                    resultDiv.classList.add('error');
+                } else {
+                    resultDiv.innerText = `Успіх! ${data.message}.`;
+                    resultDiv.classList.add('success');
+                }
+            } catch (error) {
+                resultDiv.innerText = `Помилка мережі: ${error.message}. Перевірте, чи запущено сервер.`;
+                resultDiv.classList.add('error');
+            }
+        }
+    </script>
+</body>
+</html>
